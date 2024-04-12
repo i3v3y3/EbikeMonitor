@@ -1,20 +1,29 @@
 #include <Arduino.h>
 #include <TinyGPS++.h>
 #include <math.h>
+#include <SPI.h>
+#include <TFT_eSPI.h> // Hardware-specific library
 
+
+TFT_eSPI tft = TFT_eSPI();
+// Including the TinyGPS object
+TinyGPSPlus gps;
 #define GPS_BAUDRATE 9600
 
 // Function declarations
 void getLocation();
 void distanceCalc();
 
-// Including the TinyGPS object
-TinyGPSPlus gps;
-
 void setup() {
-
   Serial.begin(9600);
   Serial2.begin(GPS_BAUDRATE);
+
+  tft.begin();
+    tft.fillScreen(TFT_RED);
+    delay(5000);
+    tft.drawCentreString("WELCOME",80,160,3);
+    
+  
 }
 
 void loop() {
@@ -33,18 +42,22 @@ void loop() {
 void getLocation() {
   if (gps.location.isValid() && gps.speed.isValid()) {
     // Get speed
-    Serial.printf("Currently at: ");
+    Serial.printf("\n\n Currently at: ");
     Serial.printf("%f",gps.speed.kmph());
 
+      delay(2000);
+
     // Get latitude location
-    Serial.printf("At: ");
+    Serial.printf("\n\n At: ");
     Serial.printf("%f",gps.location.lat());
     Serial.printf("lat");
+      delay(2000);
 
     // Get longitude location
-    Serial.printf("At: ");
+    Serial.printf("\n\n At: ");
     Serial.printf("%f",gps.location.lng());
     Serial.printf("longitude");
+      delay(2000);
   } else {
     Serial.printf("Location and speed not found");
   }
