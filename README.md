@@ -8,4 +8,6 @@ The project at hand involves the creation of an innovative ebike monitoring syst
       2. GPS module
       3. GSM module
       4. Display
+
+      
 // imploy further details on project.
