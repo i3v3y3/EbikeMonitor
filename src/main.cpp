@@ -20,9 +20,10 @@ void setup() {
   tft.begin();
     tft.fillScreen(TFT_RED);
     delay(5000);
-    tft.drawCentreString("WELCOME",80,160,3);
+    tft.drawString("Hello Welcome,",80,12);
     
-  
+    
+
 }
 
 void loop() {
