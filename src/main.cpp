@@ -5,25 +5,31 @@
 #include <TFT_eSPI.h> // Hardware-specific library
 
 TFT_eSPI tft = TFT_eSPI();
-// Including the TinyGPS object
+TFT_eSprite spr = TFT_eSprite(&tft);
 TinyGPSPlus gps;
 #define GPS_BAUDRATE 9600
 
 // Function declarations
 void getLocation();
 void distanceCalc();
+void speedometer();
+
 
 void setup() {
   Serial.begin(9600);
   Serial2.begin(GPS_BAUDRATE);
 
-  tft.begin();
-    tft.fillScreen(TFT_RED);
-    delay(5000);
-    tft.drawString("Hello Welcome,",80,12);
-    
-    
+ tft.begin();
+  tft.setRotation(1);
+  tft.fillScreen(TFT_BLACK); // Set the background color to black
+  tft.setTextColor(TFT_WHITE); // Set the text color to white
+  tft.setTextSize(2); // Set the text size
+  tft.setCursor(180, 160); // Set the cursor position
+  tft.println("Hello World"); // Print the text
+  delay(5000);
+  tft.fillScreen(TFT_BLACK);
 
+  speedometer();
 }
 
 void loop() {
@@ -81,3 +87,39 @@ void distanceCalc() {
 
   unsigned distance = sqrt(c2);
 }
+
+
+void speedometer(){
+//adding the sprite functions for the speedometer
+
+tft.drawSmoothCircle(240,320,240,TFT_MAROON, TFT_BLACK);
+
+  int16_t x, y;
+  float angle = 0;
+  float angleIncrement =  3.14159 / 5;; // 32 degrees
+  float radius = 240;
+
+  for (int i = 0; i <11 ; i++) {
+    x = 240 + radius * cos(angle);
+    y = 320 - radius * sin(angle);
+    tft.drawWideLine(240,320,x,y,3,TFT_WHITE,TFT_BLACK);
+    angle += angleIncrement;
+  }
+    int16_t a, b;
+  float angle2 = 0;
+  float angleIncrement2 =  3.14159 /50 ; // 6.degrees
+  
+
+  for (int i = 0; i <57 ; i++) {
+    a = 240 + radius * cos(angle2);
+    b = 320 - radius * sin(angle2);
+    tft.drawWideLine(240,320,a,b,1,TFT_WHITE,TFT_BLACK);
+    angle2 += angleIncrement2;
+  }
+  
+  tft.fillCircle(240,320,200, TFT_BLACK);
+
+}
+
+
+
