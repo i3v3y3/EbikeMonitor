@@ -13,6 +13,7 @@ TinyGPSPlus gps;
 void getLocation();
 void distanceCalc();
 void speedometer();
+void timedate();
 
 
 void setup() {
@@ -30,6 +31,8 @@ void setup() {
   tft.fillScreen(TFT_BLACK);
 
   speedometer();
+  timedate();
+
 }
 
 void loop() {
@@ -91,35 +94,93 @@ void distanceCalc() {
 
 void speedometer(){
 //adding the sprite functions for the speedometer
+// Define constants
+const int16_t CENTER_X = 240;
+const int16_t CENTER_Y = 320;
+const int16_t RADIUS = 240;
+const float pie = 3.14159;
+const float ANGLE_INCREMENT = pie / 5; // 32 degrees
+const float ANGLE_INCREMENT2 = pie / 25; // 12.8 degrees
+const int LINE_WIDTH = 3;
+const int LINE_WIDTH2 = 1;
 
-tft.drawSmoothCircle(240,320,240,TFT_MAROON, TFT_BLACK);
-
-  int16_t x, y;
+  // Draw a smooth circle
+ tft.drawSmoothCircle(CENTER_X, CENTER_Y, RADIUS, TFT_MAROON, TFT_BLACK);
+  // Draw more wide lines
+ float angle2 = 0;
+  for (int i = 0; i < 27; i++) {
+    int16_t a = CENTER_X + RADIUS * cos(angle2);
+    int16_t b = CENTER_Y - RADIUS * sin(angle2);
+    int16_t rounded_a = round(a);
+    int16_t rounded_b = round(b);
+    tft.drawWideLine(CENTER_X, CENTER_Y, rounded_a, rounded_b, LINE_WIDTH2, TFT_WHITE, TFT_BLACK);
+    angle2 += ANGLE_INCREMENT2;
+  }
+//Draw wide lines
   float angle = 0;
-  float angleIncrement =  3.14159 / 5;; // 32 degrees
-  float radius = 240;
+  for (int i = 0; i < 10; i++) {
+    int16_t x = CENTER_X + RADIUS * cos(angle);
+    int16_t y = CENTER_Y - RADIUS * sin(angle);
+    int16_t rounded_x = round(x);
+    int16_t rounded_y = round(y);
+    tft.drawWideLine(CENTER_X, CENTER_Y, rounded_x, rounded_y,LINE_WIDTH, TFT_RED, TFT_BLACK);
+    
+    angle += ANGLE_INCREMENT;
+    }
 
-  for (int i = 0; i <11 ; i++) {
-    x = 240 + radius * cos(angle);
-    y = 320 - radius * sin(angle);
-    tft.drawWideLine(240,320,x,y,3,TFT_WHITE,TFT_BLACK);
-    angle += angleIncrement;
+  // Fill the center of the circle
+  tft.fillCircle(CENTER_X, CENTER_Y, RADIUS - 20, TFT_BLACK);
+
+  // Draw a black circle as the background
+  tft.fillCircle(CENTER_X, CENTER_Y, RADIUS - 20, TFT_BLACK);
+
+  // Define the gradient colors
+  uint16_t color1 = tft.color565(255, 0, 0); // red
+  uint16_t color2 = tft.color565(0, 0, 0);   // black
+
+  // Calculate the step size for the gradient
+  float step = 255.0 / (RADIUS - 20);
+
+  // Draw the radial gradient
+  for (int16_t r = RADIUS - 20; r > 0; r--) {
+    uint8_t red = 255 - (r * step);
+    uint8_t green = 0;
+    uint8_t blue = 0;
+    uint16_t color = tft.color565(red, green, blue);
+    tft.drawCircle(CENTER_X, CENTER_Y, r, color);
   }
-    int16_t a, b;
-  float angle2 = 0;
-  float angleIncrement2 =  3.14159 /50 ; // 6.degrees
-  
-
-  for (int i = 0; i <57 ; i++) {
-    a = 240 + radius * cos(angle2);
-    b = 320 - radius * sin(angle2);
-    tft.drawWideLine(240,320,a,b,1,TFT_WHITE,TFT_BLACK);
-    angle2 += angleIncrement2;
-  }
-  
-  tft.fillCircle(240,320,200, TFT_BLACK);
-
 }
+
+  void timedate (){
+// getting and displaying time 
+  if (gps.date.isValid()&& gps.time.isValid() && gps.date.isUpdated() && gps.time.isUpdated()){
+    
+    spr.createSprite(100, 50, 8);
+    spr.fillSprite( TFT_BLACK);
+    spr.setCursor(0,0);
+
+    spr.drawRoundRect(10,10,80,30,3,TFT_MAROON);
+    spr.setCursor(10,10,2);
+    spr.print(gps.date.day());
+    spr.print("/");
+    spr.print(gps.date.month());
+    spr.print("/");
+    spr.println(gps.date.year());
+
+    spr.setCursor(25,10,2);
+    spr.print(gps.time.hour());
+    spr.print(":");
+    spr.print(gps.time.minute());
+
+    
+  }
+  }
+
+
+
+
+
+
 
 
 
