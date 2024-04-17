@@ -9,6 +9,7 @@ TFT_eSprite spr = TFT_eSprite(&tft);
 TinyGPSPlus gps;
 #define GPS_BAUDRATE 9600
 
+ 
 // Function declarations
 void getLocation();
 void distanceCalc();
@@ -18,7 +19,9 @@ void timedate();
 
 void setup() {
   Serial.begin(9600);
-  Serial2.begin(GPS_BAUDRATE);
+
+  // Set the RX and TX pins for the GPS module
+  Serial2.begin(GPS_BAUDRATE, SERIAL_8N1,19,21);
 
  tft.begin();
   tft.setRotation(1);
@@ -31,13 +34,14 @@ void setup() {
   tft.fillScreen(TFT_BLACK);
 
   speedometer();
-  timedate();
+ 
 
 }
 
 void loop() {
   if (Serial2.available() > 0) {
     if (gps.encode(Serial2.read())) {
+      timedate();
       getLocation();
       distanceCalc();
     }
@@ -157,9 +161,9 @@ const int LINE_WIDTH2 = 1;
     
     spr.createSprite(100, 50, 8);
     spr.fillSprite( TFT_BLACK);
-    spr.setCursor(0,0);
-
+  
     spr.drawRoundRect(10,10,80,30,3,TFT_MAROON);
+    spr.setTextColor(TFT_WHITE);
     spr.setCursor(10,10,2);
     spr.print(gps.date.day());
     spr.print("/");
@@ -172,6 +176,10 @@ const int LINE_WIDTH2 = 1;
     spr.print(":");
     spr.print(gps.time.minute());
 
+    spr.pushSprite(0,0);
+  }
+  else{
+    Serial.println("DATE AND TIME UNAVAILABLE");
     
   }
   }
