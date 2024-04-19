@@ -157,29 +157,31 @@ const int LINE_WIDTH2 = 1;
 
   void timedate (){
 // getting and displaying time 
-  if (gps.date.isValid()&& gps.time.isValid() && gps.date.isUpdated() && gps.time.isUpdated()){
-    
-    spr.createSprite(100, 50, 8);
+    unsigned long previousMillis = 0;
+  if (gps.date.isValid() && gps.time.isValid() && millis() - previousMillis > 1000){
+    previousMillis = millis();
+    spr.createSprite(200,80, 8);
     spr.fillSprite( TFT_BLACK);
-  
-    spr.drawRoundRect(10,10,80,30,3,TFT_MAROON);
+    spr.drawRoundRect(5,5,150,50,3,TFT_BLACK);
     spr.setTextColor(TFT_WHITE);
-    spr.setCursor(10,10,2);
+    spr.setCursor(35,10,2);
     spr.print(gps.date.day());
     spr.print("/");
     spr.print(gps.date.month());
     spr.print("/");
     spr.println(gps.date.year());
 
-    spr.setCursor(25,10,2);
-    spr.print(gps.time.hour());
+    spr.setCursor(25,30,2);
+    spr.setTextColor(TFT_WHITE);
+    int eatHour = gps.time.hour() + 3;
+    spr.print(eatHour);
     spr.print(":");
     spr.print(gps.time.minute());
 
     spr.pushSprite(0,0);
   }
   else{
-    Serial.println("DATE AND TIME UNAVAILABLE");
+    Serial.println("\n DATE AND TIME UNAVAILABLE");
     
   }
   }
