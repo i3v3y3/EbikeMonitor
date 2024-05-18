@@ -20,7 +20,7 @@ const float pie = 3.1415926536;
 void speedometer();
 void drawPointer(float);
 void drawPointerPrev(float);
-
+void batteryManagementSystem();
 void setup() {
   Serial.begin(9600);
 
@@ -44,14 +44,15 @@ void setup() {
 }
 
 void loop() {
-for(int i = 0; i< 100; i++)
+  batteryManagementSystem();
+for(int i = 0; i< 50; i++)
 {
-drawPointer(i*pie/100);
+drawPointer(i*pie/50);
 delay(10);
 }
-for(int i = 100; i> 0; i--)
+for(int i = 50; i> 0; i--)
 {
-drawPointer(i*pie/100);
+drawPointer(i*pie/50);
 delay(10);
 }
 }
@@ -120,3 +121,24 @@ void drawPointer(float pointerAngle)
 //   //  tft.fillCircle(CENTER_X,CENTER_Y,RADIUS2 - 8,TFT_BLACK);
 //    tft.fillTriangle(x1,y1,x2,y2,x3,y3,TFT_BLACK);
 // }
+
+void batteryManagementSystem()
+{
+  int x =TFT_HEIGHT-80;
+  int y = 10;
+  //create chargin sysmbol
+   tft.fillTriangle(x+6,y,x+6,y+6,x,y+6,TFT_GREEN); //charging
+   tft.fillTriangle(x+3,y+6,x+9,y+6,x+3,y+12,TFT_GREEN);
+  //  tft.drawTriangle(x-3,y,x-3,y-6,x-9,x-6,TFT_WHITE); // not charging
+  //create charging bar
+  tft.drawRect(x+12,y,24,12,TFT_WHITE);
+  tft.fillRect(x+12+24,y+3,3,6,TFT_WHITE);
+  //percentag block
+  tft.fillRect(x+14,y+2,20,8,TFT_WHITE);
+  //create percentage bar
+  // tft.setCursor(x+12+24+3,y,FreeSans12pt7b);
+  tft.setTextColor(TFT_WHITE); // Set the text color to white
+  tft.setTextSize(1); // Set the text size
+  tft.setCursor(x+12+24+3+4, y+3); // Set the cursor position
+  tft.println("100%"); // Print the text
+}
