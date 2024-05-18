@@ -43,13 +43,13 @@ for(int i = 0; i< 50; i++)
 {
 // drawPointer(i*pie/50);
  speedometerSprite(i*pie/50);
-delay(200);
+delay(10);
 }
 for(int i = 50; i> 0; i--)
 {
    speedometerSprite(i*pie/50);
 // drawPointer(i*pie/50);
-delay(200);
+delay(10);
 }
 }
 
@@ -97,7 +97,7 @@ const int LINE_WIDTH2 = 1;
 void speedometerSprite(float pointerAngle)
 {   
   
-    spr.createSprite(RADIUS*2,RADIUS);
+    spr.createSprite(RADIUS*2,RADIUS+10);
     spr.fillSprite(TFT_BLACK);
     //adding the sprite functions for the speedometer
 const float ANGLE_INCREMENT = pie / 5; // 32 degrees
@@ -141,12 +141,11 @@ const int LINE_WIDTH2 = 1;
   int16_t y2 = RADIUS - 4 * sin(pointerAngle+pie/2);
   int16_t x3 = RADIUS + (RADIUS2-10) * cos(pointerAngle);
   int16_t y3 = RADIUS - (RADIUS2-10) * sin(pointerAngle);
-  tft.fillCircle(RADIUS,RADIUS,RADIUS2 - 8,TFT_BLACK);
   spr.fillTriangle(x1,y1,x2,y2,x3,y3,TFT_GREEN);
-  
   spr.pushSprite(CENTER_X-RADIUS,CENTER_Y-RADIUS);
 
 }
+
 void drawPointer(float pointerAngle)
 {
   // float pointerAngle = 4*pie / 5;
