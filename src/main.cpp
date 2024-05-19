@@ -1,196 +1,180 @@
 #include <Arduino.h>
-#include <TinyGPS++.h>
 #include <math.h>
 #include <SPI.h>
 #include <TFT_eSPI.h> // Hardware-specific library
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite spr = TFT_eSprite(&tft);
-TinyGPSPlus gps;
-#define GPS_BAUDRATE 9600
 
- 
+ // Define constants
+const uint16_t MARKERLENGTH = 20;
+const int16_t CENTER_X = TFT_HEIGHT/2;
+const int16_t CENTER_Y = TFT_WIDTH-10;
+const int16_t RADIUS = TFT_WIDTH/2;
+const int16_t RADIUS2 = RADIUS-MARKERLENGTH;
+const float pie = 3.1415926536;
+
 // Function declarations
-void getLocation();
-void distanceCalc();
+
 void speedometer();
-void timedate();
-
-
+void speedometerSprite(float);
+void drawPointer(float);
+void drawPointerPrev(float);
+void batteryManagementSystem();
 void setup() {
   Serial.begin(9600);
 
   // Set the RX and TX pins for the GPS module
-  Serial2.begin(GPS_BAUDRATE, SERIAL_8N1,19,21);
 
- tft.begin();
+
+  tft.begin();
   tft.setRotation(1);
-  tft.fillScreen(TFT_BLACK); // Set the background color to black
-  tft.setTextColor(TFT_WHITE); // Set the text color to white
-  tft.setTextSize(2); // Set the text size
-  tft.setCursor(180, 160); // Set the cursor position
-  tft.println("Hello World"); // Print the text
-  delay(5000);
   tft.fillScreen(TFT_BLACK);
-
-  speedometer();
- 
+  // speedometer();
+  // drawPointer(pie/12);
+  
 
 }
 
 void loop() {
-  if (Serial2.available() > 0) {
-    if (gps.encode(Serial2.read())) {
-      timedate();
-      getLocation();
-      distanceCalc();
-    }
-  } else {
-    if (millis() > 5000 && gps.charsProcessed() < 10) {
-      Serial.printf("GPS module not receiving data");
-    }
-  }
+  batteryManagementSystem();
+ 
+for(int i = 0; i< 50; i++)
+{
+// drawPointer(i*pie/50);
+ speedometerSprite(i*pie/50);
+delay(10);
 }
-
-void getLocation() {
-  if (gps.location.isValid() && gps.speed.isValid()) {
-    // Get speed
-    Serial.printf("\n\n Currently at: ");
-    Serial.printf("%f",gps.speed.kmph());
-
-      delay(2000);
-
-    // Get latitude location
-    Serial.printf("\n\n At: ");
-    Serial.printf("%f",gps.location.lat());
-    Serial.printf("lat");
-      delay(2000);
-
-    // Get longitude location
-    Serial.printf("\n\n At: ");
-    Serial.printf("%f",gps.location.lng());
-    Serial.printf("longitude");
-      delay(2000);
-  } else {
-    Serial.printf("Location and speed not found");
-  }
+for(int i = 50; i> 0; i--)
+{
+   speedometerSprite(i*pie/50);
+// drawPointer(i*pie/50);
+delay(10);
 }
-
-void distanceCalc() {
-  // This first double data will be introduced in by user
-  double wantlat = 50.00;
-  double wantlong = 0.00;
-
-  // This is obtained from gps.
-  double curlat = gps.location.lat();
-  double curlong = gps.location.lng();
-
-  double latt = curlat - wantlat;
-  double longg = curlong - wantlong;
-
-  double a2 = pow(latt, 2);
-  double b2 = pow(longg, 2);
-  double c2 = a2 + b2;
-
-  unsigned distance = sqrt(c2);
 }
 
 
-void speedometer(){
-//adding the sprite functions for the speedometer
-// Define constants
-const int16_t CENTER_X = 240;
-const int16_t CENTER_Y = 320;
-const int16_t RADIUS = 240;
-const float pie = 3.14159;
+// void speedometer(){
+
+// //adding the sprite functions for the speedometer
+// const float ANGLE_INCREMENT = pie / 5; // 32 degrees
+// const float ANGLE_INCREMENT2 = pie / 25; // 12.8 degrees
+// const int LINE_WIDTH = 3;
+// const int LINE_WIDTH2 = 1;
+
+
+//   // Draw more wide lines
+//  float angle2 = 0;
+//   for (int i = 0; i < 27; i++) {
+//     int16_t x1 = CENTER_X + (RADIUS-2) * cos(angle2);
+//     int16_t y1 = CENTER_Y - (RADIUS-2) * sin(angle2);
+//     int16_t x2 = CENTER_X + (RADIUS2) * cos(angle2);
+//     int16_t y2 = CENTER_Y - (RADIUS2) * sin(angle2);
+
+//     tft.drawWideLine(x1, y1, x2, y2, LINE_WIDTH2, TFT_WHITE, TFT_BLACK);
+//     angle2 += ANGLE_INCREMENT2;
+//   }
+// //Draw wide lines
+//   float angle = 0;
+//   for (int i = 0; i < 10; i++) {
+//     //drawshort lines
+//     int16_t x1 = CENTER_X + (RADIUS-2) * cos(angle);
+//     int16_t y1 = CENTER_Y - (RADIUS-2) * sin(angle);
+//     int16_t x2 = CENTER_X + (RADIUS2) * cos(angle);
+//     int16_t y2 = CENTER_Y - (RADIUS2) * sin(angle);
+//     tft.drawWideLine(x1, y1, x2, y2,LINE_WIDTH, TFT_RED, TFT_BLACK);
+    
+//     angle += ANGLE_INCREMENT;
+//     }
+//   // Draw a smooth circle
+//   //  tft.drawSmoothCircle(CENTER_X, CENTER_Y, RADIUS, TFT_MAROON, TFT_BLACK);
+//   tft.drawSmoothArc(CENTER_X,CENTER_Y,RADIUS,RADIUS-2,90,270,TFT_MAROON,TFT_BLACK,true);
+  
+// }
+
+void speedometerSprite(float pointerAngle)
+{   
+  
+    spr.createSprite(RADIUS*2,RADIUS+10);
+    spr.fillSprite(TFT_BLACK);
+    //adding the sprite functions for the speedometer
 const float ANGLE_INCREMENT = pie / 5; // 32 degrees
 const float ANGLE_INCREMENT2 = pie / 25; // 12.8 degrees
 const int LINE_WIDTH = 3;
 const int LINE_WIDTH2 = 1;
 
-  // Draw a smooth circle
- tft.drawSmoothCircle(CENTER_X, CENTER_Y, RADIUS, TFT_MAROON, TFT_BLACK);
-  // Draw more wide lines
+// Draw more wide lines
  float angle2 = 0;
   for (int i = 0; i < 27; i++) {
-    int16_t a = CENTER_X + RADIUS * cos(angle2);
-    int16_t b = CENTER_Y - RADIUS * sin(angle2);
-    int16_t rounded_a = round(a);
-    int16_t rounded_b = round(b);
-    tft.drawWideLine(CENTER_X, CENTER_Y, rounded_a, rounded_b, LINE_WIDTH2, TFT_WHITE, TFT_BLACK);
+    int16_t x1 = RADIUS + (RADIUS-2) * cos(angle2);
+    int16_t y1 = RADIUS - (RADIUS-2) * sin(angle2);
+    int16_t x2 = RADIUS + (RADIUS2) * cos(angle2);
+    int16_t y2 = RADIUS - (RADIUS2) * sin(angle2);
+
+    spr.drawWideLine(x1, y1, x2, y2, LINE_WIDTH2, TFT_WHITE, TFT_BLACK);
     angle2 += ANGLE_INCREMENT2;
   }
-//Draw wide lines
+  //Draw wide lines
   float angle = 0;
   for (int i = 0; i < 10; i++) {
-    int16_t x = CENTER_X + RADIUS * cos(angle);
-    int16_t y = CENTER_Y - RADIUS * sin(angle);
-    int16_t rounded_x = round(x);
-    int16_t rounded_y = round(y);
-    tft.drawWideLine(CENTER_X, CENTER_Y, rounded_x, rounded_y,LINE_WIDTH, TFT_RED, TFT_BLACK);
+    //drawshort lines
+    int16_t x1 = RADIUS + (RADIUS-2) * cos(angle);
+    int16_t y1 = RADIUS - (RADIUS-2) * sin(angle);
+    int16_t x2 = RADIUS+ (RADIUS2) * cos(angle);
+    int16_t y2 = RADIUS - (RADIUS2) * sin(angle);
+    spr.drawWideLine(x1, y1, x2, y2,LINE_WIDTH, TFT_RED, TFT_BLACK);
     
     angle += ANGLE_INCREMENT;
     }
 
-  // Fill the center of the circle
-  tft.fillCircle(CENTER_X, CENTER_Y, RADIUS - 20, TFT_BLACK);
+ // Draw a smooth circle
+  //  tft.drawSmoothCircle(CENTER_X, CENTER_Y, RADIUS, TFT_MAROON, TFT_BLACK);
+  spr.drawSmoothArc(RADIUS,RADIUS,RADIUS,RADIUS-2,90,270,TFT_MAROON,TFT_BLACK,true);
+  
+  //draw the speedmeter pointer
+   // float pointerAngle = 4*pie / 5;
+  int16_t x1 = RADIUS + 4 * cos(pointerAngle-pie/2);
+  int16_t y1 = RADIUS - 4 * sin(pointerAngle-pie/2);
+  int16_t x2 = RADIUS + 4 * cos(pointerAngle+pie/2);
+  int16_t y2 = RADIUS - 4 * sin(pointerAngle+pie/2);
+  int16_t x3 = RADIUS + (RADIUS2-10) * cos(pointerAngle);
+  int16_t y3 = RADIUS - (RADIUS2-10) * sin(pointerAngle);
+  spr.fillTriangle(x1,y1,x2,y2,x3,y3,TFT_GREEN);
+  spr.pushSprite(CENTER_X-RADIUS,CENTER_Y-RADIUS);
 
-  // Draw a black circle as the background
-  tft.fillCircle(CENTER_X, CENTER_Y, RADIUS - 20, TFT_BLACK);
-
-  // Define the gradient colors
-  uint16_t color1 = tft.color565(255, 0, 0); // red
-  uint16_t color2 = tft.color565(0, 0, 0);   // black
-
-  // Calculate the step size for the gradient
-  float step = 255.0 / (RADIUS - 20);
-
-  // Draw the radial gradient
-  for (int16_t r = RADIUS - 20; r > 0; r--) {
-    uint8_t red = 255 - (r * step);
-    uint8_t green = 0;
-    uint8_t blue = 0;
-    uint16_t color = tft.color565(red, green, blue);
-    tft.drawCircle(CENTER_X, CENTER_Y, r, color);
-  }
 }
 
-  void timedate (){
-// getting and displaying time 
-    unsigned long previousMillis = 0;
-  if (gps.date.isValid() && gps.time.isValid() && millis() - previousMillis > 1000){
-    previousMillis = millis();
-    spr.createSprite(200,80, 8);
-    spr.fillSprite( TFT_BLACK);
-    spr.drawRoundRect(5,5,150,50,3,TFT_BLACK);
-    spr.setTextColor(TFT_WHITE);
-    spr.setCursor(35,10,2);
-    spr.print(gps.date.day());
-    spr.print("/");
-    spr.print(gps.date.month());
-    spr.print("/");
-    spr.println(gps.date.year());
-
-    spr.setCursor(25,30,2);
-    spr.setTextColor(TFT_WHITE);
-    int eatHour = gps.time.hour() + 3;
-    spr.print(eatHour);
-    spr.print(":");
-    spr.print(gps.time.minute());
-
-    spr.pushSprite(0,0);
-  }
-  else{
-    Serial.println("\n DATE AND TIME UNAVAILABLE");
-    
-  }
-  }
+// void drawPointer(float pointerAngle)
+// {
+//   // float pointerAngle = 4*pie / 5;
+//   int16_t x1 = CENTER_X + 4 * cos(pointerAngle-pie/2);
+//   int16_t y1 = CENTER_Y - 4 * sin(pointerAngle-pie/2);
+//   int16_t x2 = CENTER_X + 4 * cos(pointerAngle+pie/2);
+//   int16_t y2 = CENTER_Y - 4 * sin(pointerAngle+pie/2);
+//   int16_t x3 = CENTER_X + (RADIUS2-10) * cos(pointerAngle);
+//   int16_t y3 = CENTER_Y - (RADIUS2-10) * sin(pointerAngle);
+//    tft.fillCircle(CENTER_X,CENTER_Y,RADIUS2 - 8,TFT_BLACK);
+//    tft.fillTriangle(x1,y1,x2,y2,x3,y3,TFT_GREEN);
+// }
 
 
-
-
-
-
-
-
-
+void batteryManagementSystem()
+{
+  int x =TFT_HEIGHT-80;
+  int y = 10;
+  //create chargin sysmbol
+   tft.fillTriangle(x+6,y,x+6,y+6,x,y+6,TFT_GREEN); //charging
+  tft.fillTriangle(x+3,y+6,x+9,y+6,x+3,y+12,TFT_GREEN);
+  //  tft.drawTriangle(x-3,y,x-3,y-6,x-9,x-6,TFT_WHITE); // not charging
+  //create charging bar
+  tft.drawRect(x+12,y,24,12,TFT_WHITE);
+  tft.fillRect(x+12+24,y+3,3,6,TFT_WHITE);
+  //percentag block
+  tft.fillRect(x+14,y+2,20,8,TFT_WHITE);
+  //create percentage bar
+  // tft.setCursor(x+12+24+3,y,FreeSans12pt7b);
+  tft.setTextColor(TFT_WHITE); // Set the text color to white
+  tft.setTextSize(1); // Set the text size
+  tft.setCursor(x+12+24+3+4, y+3); // Set the cursor position
+  tft.println("100%"); // Print the text
+}
